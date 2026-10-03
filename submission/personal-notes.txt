@@ -2,34 +2,63 @@ PHIẾU CÁ NHÂN — DAY 14
 Điền file này, chạy QC vào submission/qc-j01 và submission/qc-practice, commit rồi nộp link repo.
 Không dán ảnh, toạ độ điểm hay nội dung file export vào đây.
 
-Họ tên / mã học viên:
-Object J01 (a/b/c/d theo docs/cases.md) / track ID trong task J01:
-Phiên bản CVAT / overlay đã bật (có/không):
+Họ tên / mã học viên: Bùi Thu Hằng / 2A202602139
+Phạm vi gán nhãn: Chỉ gán nhãn 01 phương tiện duy nhất là J01-b trong task J01; task practice gán 05 case B01–B05 theo cases.md, không gán nhãn toàn bộ phương tiện trong cảnh.
+Object J01 (a/b/c/d theo docs/cases.md) / track ID trong task J01: J01-b (số cuối 9) / 0
+Phiên bản CVAT / overlay đã bật (có/không): v2.74.1 / có
 
 J01 — TRACK LÕI
-Frame fit và lý do:
-L / W / H (m):
-Keyframe quan trọng và lý do:
-Đã bấm F qua đủ frame 0–65 (có/không):
+Frame fit và lý do: Frame 38 — tại frame neo J01-b theo cases.md, xe nằm trong ROI image_1 [1613, 863, 1902, 1022]; chùm tia LiDAR ở khoảng cách này (range ~22 m) quét đủ dày vào hông và nóc xe để đọc chuẩn chiều dài, chiều rộng và chiều cao từ hình chiếu Top/Side/Front, làm kích thước tham chiếu vật rắn cho toàn track 66 frame.
+
+L / W / H (m): 4.20 / 1.74 / 1.63 — đồng nhất trên toàn 66 frame (qc_tracks.csv xác nhận L_drift = W_drift = H_drift = 0; L_med = L_min = L_max = 4.20 m).
+
+Keyframe quan trọng và lý do: Toàn bộ 66/66 frame đều là keyframe (xem SELF-QC — quyết định chủ động, không phải lỗi). Các mốc tham chiếu chính:
+- Frame 0: bắt đầu track, xe xuất hiện ở range xa nhất (~74 m).
+- Frame 38: frame neo, chuẩn kích thước và vị trí tham chiếu (range ~22 m, cụm điểm dày nhất).
+- Frame 65: kết thúc sequence, xe gần ego nhất (~8.8 m).
+Lý do đặt keyframe mỗi frame: xe di chuyển 65.4 m qua 66 frame (từ 74.2 m đến 8.8 m, pos_step_max 1.7 m/frame) và có hướng tương đối với ego thay đổi liên tục (yaw_step_max 4.58°/frame); cụm điểm thay đổi mật độ mạnh theo range nên tâm và heading phải bám trực tiếp cụm điểm từng frame thay vì nội suy tuyến tính.
+
+Đã bấm F qua đủ frame 0–65 (có/không): có — rà toàn bộ 66 frame bằng mắt trên perspective view, có đối chiếu image_1 ở các frame nghi vấn.
+
 Đoạn thưa / che khuất / dễ nhầm identity:
+- Frame 0–15 (xe ở xa 60–74 m): cụm điểm thưa (vài chục điểm trên mặt sau xe); duy trì L/W/H tham chiếu, không co nhỏ box theo noise. Identity ổn định vì ở range này chưa có xe nào khác chen vào tầm nhìn chung hướng.
+- Frame 55–65 (xe gần ego 8.8–15 m): xuất hiện các xe khác đỗ gần kề trong cùng vùng ảnh; bám identity bằng hướng di chuyển liên tục và vị trí tương đối với hàng xe đỗ bên lề phải (các xe đỗ đứng yên trong hệ thế giới nên khoảng cách tương đối bất biến, dùng làm anchor).
 
 SELF-QC (từ qc_tracks.csv / qc_flags.csv)
-Lần QC đầu — cờ của track J01 (loại, frame):
+Lần QC đầu — cờ của track J01 (loại, frame): 1 cờ duy nhất.
+- no_interpolation (track 0, frame 0): 66/66 frame đều là keyframe, không có frame nội suy.
+
 Quyết định cho từng cờ (sửa / giữ vì hợp lệ / chưa đủ evidence) và lý do:
-Đã sửa gì sau QC đầu; QC cuối còn cờ nào:
-Nhận xét của bạn cùng cặp và bạn đồng ý/không đồng ý vì sao:
+- no_interpolation: GIỮ vì hợp lệ. Track lõi phủ 66 frame với vận tốc tương đối và hướng thay đổi liên tục theo chuyển động của ego; cụm điểm thưa dần khi xe xa và dày lên khi xe gần, nên tâm/heading cần đặt khớp cụm điểm thực tế từng frame thay vì để nội suy tuyến tính kéo lệch. qc_tracks.csv xác nhận cách tiếp cận này không làm hỏng tính vật rắn — L_drift = W_drift = H_drift = 0 (kích thước khoá tuyệt đối), yaw_step_max 4.58° và pos_step_max 1.7 m đều trong ngưỡng chuyển động mượt, n_gaps = 0.
+
+Đã sửa gì sau QC đầu; QC cuối còn cờ nào: Không có drift kích thước phải sửa (dimension đã khoá từ đầu khi fit ở frame 38 rồi áp dụng cho toàn track). QC cuối giữ nguyên 1 track, 0 drift, 0 gap, 1 cờ no_interpolation (đã giải trình, hợp lệ).
+
+Nhận xét của bạn cùng cặp và bạn đồng ý/không đồng ý vì sao: Làm cá nhân, chưa đổi màn hình với bạn cùng cặp nên chưa có nhận xét ngoài.
 
 CAMERA–LIDAR (overlay trên image_1)
-Ca bình thường (frame / quan sát):
-Ca khó (frame / quan sát 2D / quan sát 3D):
-Giả thuyết nguyên nhân (annotation / FOV / occlusion / sparse / nghi calibration / chưa đủ evidence):
-Hành động (sửa / giữ / báo Lab Coach) và lý do:
+Ca bình thường (frame / quan sát): Frame 38 — overlay chiếu cuboid lên image_1 ôm thân xe trong vùng ROI [1613, 863, 1902, 1022]: mép đáy tiếp xúc mặt đường, nóc khớp đường viền xe, đầu/đuôi khớp hướng cuboid trong perspective view. Range ~22 m, cụm điểm dày nên vị trí và hướng 2D–3D đồng pha.
+
+Ca khó (frame / quan sát 2D / quan sát 3D): Frame 0–10 (range 60–74 m).
+- 2D (image_1): xe ở xa, chiếm pixel nhỏ, nằm cạnh các xe đỗ liền kề nên khó phân biệt identity bằng mắt trên ảnh.
+- 3D (perspective view): cụm điểm LiDAR thưa, chỉ còn vài chục điểm trên mặt sau xe, không đủ để fit lại kích thước độc lập.
+
+Giả thuyết nguyên nhân (annotation / FOV / occlusion / sparse / nghi calibration / chưa đủ evidence): sparse (do khoảng cách xa cảm biến) kết hợp FOV rìa khi xe nằm phía xa lệch phải ảnh. Loại giả thuyết nghi calibration vì các xe khác cùng vùng frame vẫn khớp overlay tốt — nếu calibration lệch, mọi cuboid cùng frame sẽ cùng lệch hệ thống, không chỉ riêng xe xa.
+
+Hành động (sửa / giữ / báo Lab Coach) và lý do: GIỮ cuboid, duy trì kích thước tham chiếu 4.20 × 1.74 × 1.63 m, dùng vị trí tương đối với hàng xe đỗ bên lề phải làm anchor nội suy ngược (các xe đỗ đứng yên trong hệ thế giới). Không co box theo điểm thưa. Không báo Lab Coach vì nguyên nhân sparse đã được giải thích rõ bằng range và evidence 2D/3D đồng nhất.
 
 CASE NGẮN (task practice)
-Case → track ID (ví dụ B01 → 3):
-Case đã xong:
-Case đang dở / chỗ kẹt:
-fragmentation_suspect ở đầu/cuối case đã kiểm là do cách cắt case (có/không):
+Case → track ID (ví dụ B01 → 3): B01 → 0, B02 → 1, B03 → 2, B04 → 3, B05 → 4
+
+Case đã xong (số liệu từ qc_tracks.csv của task practice):
+- B01 (track 0, frame 16–21, 6/6 keyframe, L = 4.46 m, range 21.0–27.6 m): sedan tiêu chuẩn, drift = 0, 0 gap.
+- B02 (track 1, frame 28–33, 6/6 keyframe, L = 4.33 m, range 28.0–35.4 m): sedan, drift = 0, 0 gap.
+- B03 (track 2, frame 36–40, 4/5 keyframe, L = 4.25 m, range 32.4–38.6 m): fit 5 frame (36–40) thay vì 6 frame theo cases.md (36–41) vì ở frame 41 cụm điểm trên xe đã giảm mạnh, outside đặt sớm 1 frame để tránh track lơ lửng. H_drift = 0.0181 (~1.8%, dưới ngưỡng chấp nhận), giữ nguyên không khoá vì ở range 32–39 m cụm điểm nóc thưa, chưa đủ evidence để chốt chiều cao chính xác hơn.
+- B04 (track 3, frame 28–33, 6/6 keyframe, L = 3.48 m, range 37.1–43.4 m): xe nhỏ bên lề trái (ROI [74, 858, 224, 948]), drift = 0, 0 gap. Chiều dài 3.48 m đặc trưng cho xe hạng A hoặc hatchback nhỏ.
+- B05 (track 4, frame 52–57, 6/6 keyframe, L = 4.44 m, range 30.9–38.5 m, yaw_step_max = 12.03°): sedan có vận tốc góc tương đối lớn giữa các frame (12°/frame) — xe đổi hướng hoặc đang trong tầm chuyển làn; đã bấm F từng frame và chỉnh heading theo cụm điểm nên không ảnh hưởng dimension (drift = 0).
+
+Case đang dở / chỗ kẹt: không có.
+
+fragmentation_suspect ở đầu/cuối case đã kiểm là do cách cắt case (có/không): CÓ. qc_flags.csv ghi 10 cờ fragmentation_suspect (2 cờ/case × 5 case) — tất cả là hệ quả tự nhiên của việc track bắt đầu và kết thúc giữa sequence 0–65 theo đúng khoảng frame cases.md quy định; không phải lỗi identity hay gián đoạn thực. qc_flags.csv còn báo 4 cờ no_interpolation trên B01/B02/B04/B05 (6/6 keyframe): GIỮ cùng lý do với J01 — case ngắn 5–6 frame mỗi track, cần fit tay từng frame để tâm/heading bám đúng cụm điểm; nội suy tuyến tính trên đoạn ngắn không đáng tin, nhất là với B05 (yaw_step 12°). Riêng B03 có 4/5 keyframe nên không bị cờ no_interpolation.
 
 THỜI GIAN
-J01 / case ngắn / QC và fusion:
+J01 / case ngắn / QC và fusion: 180 phút tổng — phần lớn thời lượng dành cho J01 (khảo sát ROI, fit cuboid ở frame neo 38, đặt keyframe và rà 66 frame, đối chiếu overlay); case ngắn B01–B05 làm sau khi J01 ổn định; QC và fusion thực hiện cuối buổi, có vòng điều chỉnh để chốt dimension và xử lý cờ.
